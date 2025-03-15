@@ -131,7 +131,8 @@ class WhisperTranscribeApp:
             self.root.update_idletasks()
             
             start_time = time.time()
-            model = whisper.load_model(model_name, device=device)
+            # CPUでモデルをロード（GPU関連の機能を削除）
+            model = whisper.load_model(model_name)
             load_time = time.time() - start_time
             
             self.status_var.set(f"モデルロード完了: {load_time:.1f}秒")
@@ -322,6 +323,7 @@ class WhisperTranscribeApp:
                 result_lines.append(line.strip())
         
         return ' '.join(result_lines)
+    
     def _save_text_to_file(self, text, file_path, show_dialog=True):
         """テキストをファイルに保存する共通処理"""
         try:
