@@ -126,7 +126,6 @@ class WhisperTranscribeApp:
     def load_model(self):
         try:
             model_name = self.model_var.get()
-            device = "cuda" if self.use_gpu_var.get() and self.gpu_available else "cpu"
             
             self.status_var.set(f"{model_name}モデルをロード中...")
             self.root.update_idletasks()
