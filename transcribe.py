@@ -40,31 +40,25 @@ class WhisperTranscribeApp:
         self.create_widgets()
         
     def create_widgets(self):
-        # メインフレーム
         main_frame = ttk.Frame(self.root, padding=10)
         main_frame.pack(fill=tk.BOTH, expand=True)
         
-        # 上部フレーム - ファイル選択
         file_frame = ttk.LabelFrame(main_frame, text="音声ファイル選択", padding=5)
         file_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        # ファイル選択部分
         self.file_path_var = tk.StringVar()
         ttk.Label(file_frame, text="ファイル:").grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
         ttk.Entry(file_frame, textvariable=self.file_path_var, width=50).grid(row=0, column=1, sticky=tk.EW, padx=5, pady=5)
         ttk.Button(file_frame, text="参照...", command=self.browse_file).grid(row=0, column=2, sticky=tk.W, padx=5, pady=5)
         
-        # モデル選択フレーム
         model_frame = ttk.LabelFrame(main_frame, text="モデル設定", padding=5)
         model_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        # モデル選択
         ttk.Label(model_frame, text="モデル:").grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
         self.model_var = tk.StringVar(value=self.model_size)
         model_combo = ttk.Combobox(model_frame, textvariable=self.model_var, values=self.model_sizes, state="readonly", width=10)
         model_combo.grid(row=0, column=1, sticky=tk.W, padx=5, pady=5)
         
-        # 出力ディレクトリ設定
         output_frame = ttk.LabelFrame(main_frame, text="出力設定", padding=5)
         output_frame.pack(fill=tk.X, padx=5, pady=5)
         
@@ -73,45 +67,36 @@ class WhisperTranscribeApp:
         ttk.Entry(output_frame, textvariable=self.output_dir_var, width=50).grid(row=0, column=1, sticky=tk.EW, padx=5, pady=5)
         ttk.Button(output_frame, text="参照...", command=self.browse_output_dir).grid(row=0, column=2, sticky=tk.W, padx=5, pady=5)
         
-        # 自動保存オプション
         self.auto_save_var = tk.BooleanVar(value=True)
         ttk.Checkbutton(output_frame, text="文字起こし後に自動保存", variable=self.auto_save_var).grid(row=1, column=0, columnspan=3, sticky=tk.W, padx=5, pady=5)
         
-        # 言語設定
         ttk.Label(model_frame, text="言語:").grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
         self.lang_var = tk.StringVar(value="ja")
         ttk.Entry(model_frame, textvariable=self.lang_var, width=10).grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
         ttk.Label(model_frame, text="(空欄=自動検出, ja=日本語, en=英語)").grid(row=1, column=2, columnspan=2, sticky=tk.W, padx=5, pady=5)
         
-        # タイムスタンプオプション
         self.timestamps_var = tk.BooleanVar(value=False)
         ttk.Checkbutton(model_frame, text="タイムスタンプを表示", variable=self.timestamps_var).grid(row=2, column=0, columnspan=2, sticky=tk.W, padx=5, pady=5)
         
-        # 実行ボタン
         self.transcribe_btn = ttk.Button(model_frame, text="文字起こし開始", command=self.start_transcription)
         self.transcribe_btn.grid(row=2, column=2, sticky=tk.E, padx=5, pady=5)
         
-        # ステータスフレーム
         status_frame = ttk.Frame(main_frame)
         status_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        # ステータス表示
         ttk.Label(status_frame, text="状態:").pack(side=tk.LEFT, padx=(0, 5))
         self.status_var = tk.StringVar(value="準備完了")
         ttk.Label(status_frame, textvariable=self.status_var).pack(side=tk.LEFT)
         
-        # 進捗バー
         self.progress = ttk.Progressbar(status_frame, orient="horizontal", length=200, mode="determinate")
         self.progress.pack(side=tk.RIGHT, padx=5)
         
-        # 結果表示エリア
         result_frame = ttk.LabelFrame(main_frame, text="文字起こし結果", padding=5)
         result_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         self.output_text = scrolledtext.ScrolledText(result_frame, wrap=tk.WORD)
         self.output_text.pack(fill=tk.BOTH, expand=True)
-        
-        # ボタンフレーム
+
         button_frame = ttk.Frame(main_frame)
         button_frame.pack(fill=tk.X, padx=5, pady=5)
         
@@ -131,7 +116,6 @@ class WhisperTranscribeApp:
             self.file_path_var.set(file_path)
     
     def browse_output_dir(self):
-        """出力ディレクトリ選択ダイアログを表示"""
         dir_path = filedialog.askdirectory(
             initialdir=self.output_dir
         )
@@ -140,16 +124,13 @@ class WhisperTranscribeApp:
             self.output_dir = dir_path
     
     def load_model(self):
-        """Whisperモデルをロード"""
         try:
             model_name = self.model_var.get()
             device = "cuda" if self.use_gpu_var.get() and self.gpu_available else "cpu"
             
-            # 進捗状況を更新
             self.status_var.set(f"{model_name}モデルをロード中...")
             self.root.update_idletasks()
             
-            # モデルをロード
             start_time = time.time()
             model = whisper.load_model(model_name, device=device)
             load_time = time.time() - start_time
@@ -174,20 +155,16 @@ class WhisperTranscribeApp:
             messagebox.showerror("エラー", "選択されたファイルが見つかりません")
             return
         
-        # ボタンを無効化
         self.transcribe_btn.config(state=tk.DISABLED)
         
-        # プログレスバーをリセット
         self.progress["value"] = 0
         self.progress.config(mode="indeterminate")
         self.progress.start(10)
         
-        # 言語設定を取得
         language = self.lang_var.get().strip()
         if not language:
             language = None
-            
-        # 非同期で処理を実行
+
         threading.Thread(
             target=self.perform_transcription,
             args=(file_path, language),
@@ -237,7 +214,6 @@ class WhisperTranscribeApp:
             lang_info = f"検出された言語: {detected_lang}\n\n"
             
             if self.timestamps_var.get() and "segments" in result:
-                # タイムスタンプ付き出力
                 for segment in result["segments"]:
                     start = self.format_time(segment["start"])
                     end = self.format_time(segment["end"])
@@ -253,7 +229,6 @@ class WhisperTranscribeApp:
                 f"完了: {transcribe_time:.1f}秒 - 言語: {detected_lang}")
             )
             
-            # 自動保存が有効な場合、結果を保存
             if self.auto_save_var.get():
                 self.root.after(100, lambda: self.auto_save_result(file_path, lang_info + output_text))
             
@@ -266,18 +241,15 @@ class WhisperTranscribeApp:
             self.root.after(0, lambda: self.transcribe_btn.config(state=tk.NORMAL))
     
     def format_time(self, seconds):
-        """秒数を [時:分:秒] 形式でフォーマット"""
         m, s = divmod(seconds, 60)
         h, m = divmod(m, 60)
         return f"{int(h):02d}:{int(m):02d}:{s:.2f}"
     
     def update_output(self, text):
-        """出力テキストエリアを更新"""
         self.output_text.delete(1.0, tk.END)
         self.output_text.insert(tk.END, text)
     
     def copy_to_clipboard(self):
-        """結果をクリップボードにコピー"""
         text = self.output_text.get(1.0, tk.END).strip()
         if text:
             self.root.clipboard_clear()
@@ -287,13 +259,11 @@ class WhisperTranscribeApp:
             messagebox.showwarning("警告", "コピーするテキストがありません")
     
     def save_to_file(self):
-        """結果をファイルに保存（ダイアログ表示）"""
         text = self.output_text.get(1.0, tk.END).strip()
         if not text:
             messagebox.showwarning("警告", "保存するテキストがありません")
             return
         
-        # テキストのみ保存が有効な場合は、タイムスタンプを除去
         if self.text_only_save_var.get():
             text = self.extract_text_only(text)
         
@@ -325,7 +295,6 @@ class WhisperTranscribeApp:
         # 保存先のフルパス
         output_path = os.path.join(self.output_dir, output_filename)
         
-        # テキストのみ保存が有効な場合は、タイムスタンプを除去
         if self.text_only_save_var.get():
             text = self.extract_text_only(text)
         
@@ -341,11 +310,9 @@ class WhisperTranscribeApp:
         
         # タイムスタンプ行と言語情報を除外し、テキスト部分のみを抽出
         for line in lines:
-            # 「検出された言語」の行をスキップ
             if "検出された言語" in line:
                 continue
                 
-            # タイムスタンプ形式 [00:00:0.00 --> 00:00:2.00] を含む行から本文だけ抽出
             if line.strip().startswith('[') and '] ' in line:
                 # 最初の ']' の後のテキスト部分を抽出
                 text_part = line.split('] ', 1)[1].strip()
@@ -355,7 +322,6 @@ class WhisperTranscribeApp:
                 # タイムスタンプなしの通常の行
                 result_lines.append(line.strip())
         
-        # 改行なしで結合（1行のテキストにする）
         return ' '.join(result_lines)
     def _save_text_to_file(self, text, file_path, show_dialog=True):
         """テキストをファイルに保存する共通処理"""

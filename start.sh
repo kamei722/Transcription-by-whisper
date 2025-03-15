@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Whisper文字起こしアプリケーション起動スクリプト
-
-# このスクリプトのディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 cd "$SCRIPT_DIR"
 
@@ -19,9 +16,7 @@ else
     exit 1
 fi
 
-# アプリケーションの起動
 echo "Whisper文字起こしアプリケーションを起動しています..."
 python transcribe.py
 
-# 終了時に仮想環境を抜ける
 deactivate
