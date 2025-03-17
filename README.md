@@ -12,27 +12,11 @@ OpenAIWhisperによりオーディオファイルをテキストに変換する�
   - torch
   - tkinter
 
-## インストール方法
-
-```bash
-# 仮想環境を作成
-python -m venv whisper_env
-
-# 仮想環境を有効化
-source whisper_env/bin/activate  # Linuxおよびmacの場合
-# または
-whisper_env\Scripts\activate  # Windowsの場合
-
-# 必要なパッケージをインストール
-pip install openai-whisper torch ffmpeg-python
-```
-
 ## 使用方法
 
 ```bash
-# 起動スクリプトを実行
 ./start.sh  # Linuxおよびmacの場合
-# または
+
 start.bat  # Windowsの場合
 ```
 
